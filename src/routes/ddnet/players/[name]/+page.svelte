@@ -289,9 +289,10 @@
 			},
 			data: {
 				labels: data.growth.map((_, index) => {
-					return new Date(
-						(data.endOfDay - (364 - index) * 24 * 60 * 60) * 1000
-					).toLocaleDateString('zh-CN', { dateStyle: 'short' });
+					return new Date((data.endOfDay - (364 - index) * 24 * 60 * 60) * 1000).toLocaleDateString(
+						'zh-CN',
+						{ dateStyle: 'short' }
+					);
 				}),
 				datasets: [
 					{
@@ -389,455 +390,461 @@
 
 {#if !loading && !loadError}
 	<div class="mb-4">
-	<div class="flex h-auto w-full flex-col items-center justify-between gap-2 sm:h-24 sm:flex-row">
-		<div>
-			<div class="flex flex-row items-center">
-				<button
-					class="-mt-1 mr-2 -mb-1 h-16 w-16 cursor-pointer"
-					data-skin-name={data.skin.n}
-					use:tippy={{
-						content: getSkinTooltipContent(data.skin.n || ''),
-						placement: 'right',
-						hideOnClick: false
-					}}
-					onclick={() => copySkinName(data.skin.n || 'default')}
-				>
-					<TeeRender
-						name={data.skin.n}
-						body={data.skin.b}
-						feet={data.skin.f}
-						useDefault
-						className="w-full h-full"
-					></TeeRender>
-				</button>
-				<div class="text-2xl font-bold">{data.player.player}</div>
-			</div>
-			<div class="text-md font-bold">
-				<span>最近活跃：{secondsToDate(data.last_finish.timestamp)}</span>
-			</div>
-		</div>
-		<div class="flex flex-col-reverse items-center justify-center gap-5">
-			{#key 'tool'}
-				{@const button = toolButton()}
-				{#if button}
-					<button
-						class="motion-preset-seesaw motion-duration-500 cursor-pointer rounded bg-red-600 px-3 py-1.25 text-sm font-semibold text-nowrap text-white shadow-[0_0_15px_rgba(220,38,38,0.7)] hover:bg-red-700 active:bg-red-600"
-						onclick={() => {
-							toolEntry = true;
-							goto(`/ddnet/tool/${button[1]}`);
-						}}><Fa class="inline" icon={faCoins}></Fa> {button[0]}</button
-					>
-				{/if}
-			{/key}
+		<div class="flex h-auto w-full flex-col items-center justify-between gap-2 sm:h-24 sm:flex-row">
 			<div>
-				<button
-					class="cursor-pointer rounded bg-blue-500 px-4 py-2 font-semibold text-nowrap hover:bg-blue-600 active:bg-blue-500"
-					onclick={() => {
-						mapModal = !mapModal;
-					}}><Fa class="inline" icon={faMap}></Fa> 过图数据</button
-				>
-				<button
-					class="cursor-pointer rounded bg-slate-700 px-4 py-2 font-semibold text-nowrap hover:bg-slate-600 active:bg-slate-700"
-					onclick={() => {
-						pointModal = !pointModal;
-					}}><Fa class="inline" icon={faQuestionCircle}></Fa> 积分说明</button
-				>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="grid grid-cols-1 gap-4 md:grid-cols-1">
-	<div class="rounded-lg bg-slate-700 p-2 shadow-md md:p-4">
-		<h2 class="mb-3 text-xl font-bold">
-			玩家信息 <FlagSpan
-				flag={data.player.favorite_server.server}
-				tooltip="常玩地区：{data.player.favorite_server.server}"
-			/>
-			{#if data.player.pending_unknown || data.player.pending_points}
-				<button
-					class="cursor-pointer text-sm font-semibold text-blue-300 hover:text-blue-400"
-					onclick={() => {
-						explaination = !explaination;
-					}}>ⓘ 数据不对？</button
-				>
-			{/if}
-			{#if explaination}
-				<span
-					class="mt-2 block rounded-lg bg-slate-800 px-3 py-1 text-sm font-normal shadow-md md:float-right md:mt-0 md:inline-block"
-					>里程与分数统计结算有一天的延迟，部分数据可能需要48小时后才会出现</span
-				>
-			{/if}
-		</h2>
-
-		<div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-			{#each data.ranks as rank, i}
-				<div
-					class="rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3"
-					class:opacity-50={!rank.rank.rank}
-					class:pulse-red={i == 0 && pendingToolPoints > 0}
-				>
-					<h3 class="mb-1 text-base font-bold">
-						{#if rank.icon == 'SV'}
-							<FlagSpan class="text-sm" flag={data.player.favorite_server.server} />
-							{KNOWN_REGIONS[data.player.favorite_server.server.toUpperCase()] || '地区'}{rank.name}
-						{:else}
-							{rank.icon}
-							{rank.name}
-						{/if}
-					</h3>
-					{#if i == 0 && rank.rank.rank}
-						<p class="text-md">
-							<span class="text-sm">No.</span>{fakeRank()} - {fakePoints}pts
-							{#if rank.rank.pending || data.player.pending_unknown || pendingToolPoints}
-								<span class="font-semibold text-blue-300"
-									>{' '}+{(rank.rank.pending || 0) + pendingToolPoints}</span
-								>
-							{/if}
-						</p>
-					{:else if rank.rank.rank}
-						<p class="text-md">
-							<span class="text-sm">No.</span>{rank.rank.rank} - {rank.rank.points}pts
-						</p>
-					{:else if rank.icon == 'SV'}
-						<p class="text-md">未进前 500 名</p>
-					{:else}
-						<p class="text-md">未获得</p>
-					{/if}
-				</div>
-			{/each}
-		</div>
-
-		<div class="grid grid-cols-1 gap-2 md:grid-cols-2">
-			<div class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
-				<h3 class="mb-1 text-base font-bold">🏁 最近完成</h3>
-				{#each data.player.last_finishes as finish}
-					<p class="text-md">
-						<span class="text-sm">{secondsToDate(finish.timestamp)}</span>
-						<FlagSpan flag={finish.country} />
-						<MapLink map={finish.map} className="font-semibold"
-							>[{mapType(finish.type)}] {finish.map}</MapLink
-						> - {secondsToTime(finish.time)}
-					</p>
-				{/each}
-			</div>
-
-			<div
-				class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3"
-				class:opacity-50={!data.player.favorite_partners.length}
-			>
-				<h3 class="mb-1 text-base font-bold">👍 常玩队友</h3>
-				{#each data.player.favorite_partners as partner}
-					<p class="text-md">
-						<PlayerLink player={partner.name} className="font-semibold">{partner.name}</PlayerLink> -
-						组队 {partner.finishes} 次
-					</p>
-				{/each}
-				{#if !data.player.favorite_partners.length}
-					<p class="text-md">暂无团队记录</p>
-				{/if}
-			</div>
-		</div>
-		{#if data.player.data_update_time}
-			<div class="mt-2">
-				上次数据更新于 {new Date(data.player.data_update_time * 1000).toLocaleString('zh-CN', {
-					dateStyle: 'short',
-					timeStyle: 'short'
-				})}
-			</div>
-		{/if}
-	</div>
-	<div class="rounded-lg bg-slate-700 p-2 shadow-md md:p-4">
-		<h2 class="mb-3 text-xl font-bold">玩家数据</h2>
-		<div class="grid grid-cols-1 md:grid-cols-2 md:gap-2">
-			{#each data.statsCols as col, i}
-				<div>
-					<div
-						class="{i != 0 ? 'hidden md:grid' : ''} grid grid-cols-2 gap-2 text-center font-bold"
+				<div class="flex flex-row items-center">
+					<button
+						class="-mt-1 mr-2 -mb-1 h-16 w-16 cursor-pointer"
+						data-skin-name={data.skin.n}
+						use:tippy={{
+							content: getSkinTooltipContent(data.skin.n || ''),
+							placement: 'right',
+							hideOnClick: false
+						}}
+						onclick={() => copySkinName(data.skin.n || 'default')}
 					>
-						<div class="overflow-hidden text-center">里程</div>
-						<div class="overflow-hidden text-center">完成度</div>
-					</div>
-					{#each col as stat}
-						<div class="mt-1 rounded-lg bg-slate-600 px-1 py-0 md:mt-2 md:px-2 md:py-1">
-							<div class="grid grid-cols-2 gap-2 px-2 text-sm md:text-base">
-								<div class="overflow-hidden text-left">
-									{stat.type == 'points' ? '总计' : mapType(stat.type)}
-								</div>
-								<div class="overflow-hidden text-right">
-									{#if stat.rank}<span class="text-xs">NO.</span>{stat.rank}{/if}
-								</div>
-							</div>
+						<TeeRender
+							name={data.skin.n}
+							body={data.skin.b}
+							feet={data.skin.f}
+							useDefault
+							className="w-full h-full"
+						></TeeRender>
+					</button>
+					<div class="text-2xl font-bold">{data.player.player}</div>
+				</div>
+				<div class="text-md font-bold">
+					<span>最近活跃：{secondsToDate(data.last_finish.timestamp)}</span>
+				</div>
+			</div>
+			<div class="flex flex-col-reverse items-center justify-center gap-5">
+				{#key 'tool'}
+					{@const button = toolButton()}
+					{#if button}
+						<button
+							class="motion-preset-seesaw motion-duration-500 cursor-pointer rounded bg-red-600 px-3 py-1.25 text-sm font-semibold text-nowrap text-white shadow-[0_0_15px_rgba(220,38,38,0.7)] hover:bg-red-700 active:bg-red-600"
+							onclick={() => {
+								toolEntry = true;
+								goto(`/ddnet/tool/${button[1]}`);
+							}}><Fa class="inline" icon={faCoins}></Fa> {button[0]}</button
+						>
+					{/if}
+				{/key}
+				<div>
+					<button
+						class="cursor-pointer rounded bg-blue-500 px-4 py-2 font-semibold text-nowrap hover:bg-blue-600 active:bg-blue-500"
+						onclick={() => {
+							mapModal = !mapModal;
+						}}><Fa class="inline" icon={faMap}></Fa> 过图数据</button
+					>
+					<button
+						class="cursor-pointer rounded bg-slate-700 px-4 py-2 font-semibold text-nowrap hover:bg-slate-600 active:bg-slate-700"
+						onclick={() => {
+							pointModal = !pointModal;
+						}}><Fa class="inline" icon={faQuestionCircle}></Fa> 积分说明</button
+					>
+				</div>
+			</div>
+		</div>
+	</div>
 
-							<div class="grid grid-cols-2 pb-1">
-								<div
-									class="h-full overflow-hidden rounded-l border-r-2 border-emerald-800 bg-emerald-900"
-								>
-									{#if stat.total_points}
-										<p class="z-10 float-right mr-2 text-xs text-emerald-200 md:text-base">
-											{Math.floor((stat.points / stat.total_points) * 100)}%
-										</p>
-										<p
-											class="z-10 float-left mt-0 ml-2 text-right text-xs text-emerald-200 md:mt-1"
-										>
-											{#if stat.total_points}{stat.points}/{stat.total_points}{/if}
-										</p>
-										<div
-											class="h-full {stat.points == stat.total_points
-												? 'rounded-l'
-												: 'rounded'} bg-emerald-600"
-											style="width: {(stat.points / stat.total_points) * 100}%;"
-										></div>
-									{:else}
-										<p class="z-10 float-right mr-2 text-xs text-emerald-200 md:text-base"></p>
-										<p
-											class="z-10 float-left mt-0 ml-2 text-right text-xs text-emerald-200 md:mt-1"
-										></p>
-										<div
-											class="h-full {stat.finishes == stat.total_map
-												? 'rounded-l'
-												: 'rounded'} bg-emerald-600"
-											style="width: {(stat.finishes / stat.total_map) * 100}%;"
-										></div>
-									{/if}
-								</div>
-								<div
-									class="h-full border-collapse rounded-r border-l-2 border-teal-800 bg-teal-900"
-								>
-									<p class="z-10 float-left ml-2 text-right text-xs text-teal-200 md:text-base">
-										{Math.floor((stat.finishes / stat.total_map) * 100)}%
-									</p>
-									<p class="z-10 float-right mt-0 mr-2 text-left text-xs text-teal-200 md:mt-1">
-										{stat.finishes}/{stat.total_map}
-									</p>
-									<div
-										class="h-full {stat.finishes == stat.total_map
-											? 'rounded-r'
-											: 'rounded'} bg-teal-600"
-										style="margin-left: auto; width: {(stat.finishes / stat.total_map) * 100}%"
-									></div>
-								</div>
-							</div>
-						</div>
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-1">
+		<div class="rounded-lg bg-slate-700 p-2 shadow-md md:p-4">
+			<h2 class="mb-3 text-xl font-bold">
+				玩家信息 <FlagSpan
+					flag={data.player.favorite_server.server}
+					tooltip="常玩地区：{data.player.favorite_server.server}"
+				/>
+				{#if data.player.pending_unknown || data.player.pending_points}
+					<button
+						class="cursor-pointer text-sm font-semibold text-blue-300 hover:text-blue-400"
+						onclick={() => {
+							explaination = !explaination;
+						}}>ⓘ 数据不对？</button
+					>
+				{/if}
+				{#if explaination}
+					<span
+						class="mt-2 block rounded-lg bg-slate-800 px-3 py-1 text-sm font-normal shadow-md md:float-right md:mt-0 md:inline-block"
+						>里程与分数统计结算有一天的延迟，部分数据可能需要48小时后才会出现</span
+					>
+				{/if}
+			</h2>
+
+			<div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+				{#each data.ranks as rank, i}
+					<div
+						class="rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3"
+						class:opacity-50={!rank.rank.rank}
+						class:pulse-red={i == 0 && pendingToolPoints > 0}
+					>
+						<h3 class="mb-1 text-base font-bold">
+							{#if rank.icon == 'SV'}
+								<FlagSpan class="text-sm" flag={data.player.favorite_server.server} />
+								{KNOWN_REGIONS[data.player.favorite_server.server.toUpperCase()] ||
+									'地区'}{rank.name}
+							{:else}
+								{rank.icon}
+								{rank.name}
+							{/if}
+						</h3>
+						{#if i == 0 && rank.rank.rank}
+							<p class="text-md">
+								<span class="text-sm">No.</span>{fakeRank()} - {fakePoints}pts
+								{#if rank.rank.pending || data.player.pending_unknown || pendingToolPoints}
+									<span class="font-semibold text-blue-300"
+										>{' '}+{(rank.rank.pending || 0) + pendingToolPoints}</span
+									>
+								{/if}
+							</p>
+						{:else if rank.rank.rank}
+							<p class="text-md">
+								<span class="text-sm">No.</span>{rank.rank.rank} - {rank.rank.points}pts
+							</p>
+						{:else if rank.icon == 'SV'}
+							<p class="text-md">未进前 500 名</p>
+						{:else}
+							<p class="text-md">未获得</p>
+						{/if}
+					</div>
+				{/each}
+			</div>
+
+			<div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+				<div class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
+					<h3 class="mb-1 text-base font-bold">🏁 最近完成</h3>
+					{#each data.player.last_finishes as finish}
+						<p class="text-md">
+							<span class="text-sm">{secondsToDate(finish.timestamp)}</span>
+							<FlagSpan flag={finish.country} />
+							<MapLink map={finish.map} className="font-semibold"
+								>[{mapType(finish.type)}] {finish.map}</MapLink
+							> - {secondsToTime(finish.time)}
+						</p>
 					{/each}
 				</div>
-			{/each}
-		</div>
-	</div>
-	<div class="rounded-lg bg-slate-700 p-2 shadow-md md:p-4">
-		<h2 class="mb-3 text-xl font-bold">玩家活跃</h2>
-		<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-			<div class="rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
-				<h3 class="mb-1 text-base font-bold">首次记录</h3>
-				<p>
-					<MapLink map={data.player.first_finish.map} className="font-semibold"
-						>{data.player.first_finish.map}</MapLink
-					> ({secondsToTime(data.player.first_finish.time)})
-				</p>
-				<p>于 {secondsToDate(data.player.first_finish.timestamp)} 完成</p>
+
+				<div
+					class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3"
+					class:opacity-50={!data.player.favorite_partners.length}
+				>
+					<h3 class="mb-1 text-base font-bold">👍 常玩队友</h3>
+					{#each data.player.favorite_partners as partner}
+						<p class="text-md">
+							<PlayerLink player={partner.name} className="font-semibold">{partner.name}</PlayerLink
+							> - 组队 {partner.finishes} 次
+						</p>
+					{/each}
+					{#if !data.player.favorite_partners.length}
+						<p class="text-md">暂无团队记录</p>
+					{/if}
+				</div>
 			</div>
-			<div
-				class="rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3"
-				class:opacity-50={!data.player.hours_played_past_365_days}
-			>
-				<h3 class="mb-1 text-base font-bold">活跃时间</h3>
-				{#if data.player.hours_played_past_365_days}
-					<p>
-						<span class="font-semibold">365天内游玩：</span>{data.player.hours_played_past_365_days}
-						小时
-					</p>
-				{:else}
-					<p>过去 365 天未游玩</p>
-				{/if}
-			</div>
+			{#if data.player.data_update_time}
+				<div class="mt-2">
+					上次数据更新于 {new Date(data.player.data_update_time * 1000).toLocaleString('zh-CN', {
+						dateStyle: 'short',
+						timeStyle: 'short'
+					})}
+				</div>
+			{/if}
 		</div>
-		<div class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
-			<h3 class="mb-1 text-base font-bold">活跃记录</h3>
-			<div class="mx-auto max-w-fit rounded bg-slate-700 p-1 sm:p-2 md:p-3">
-				<div class="flex flex-row flex-nowrap gap-2">
-					<div class="hidden flex-col text-xs sm:flex">
-						<p class="-mt-1 grow text-nowrap">周一</p>
-						<p class="text-nowrap">周日</p>
-					</div>
-					<div class="flex flex-col flex-nowrap lg:gap-0.5">
-						{#each data.activity as row}
-							<div
-								class="flex flex-row flex-nowrap border-slate-800 first:border-t lg:gap-0.5 lg:border-none"
-							>
-								{#each row as col}
-									{#if col.date}
+		<div class="rounded-lg bg-slate-700 p-2 shadow-md md:p-4">
+			<h2 class="mb-3 text-xl font-bold">玩家数据</h2>
+			<div class="grid grid-cols-1 md:grid-cols-2 md:gap-2">
+				{#each data.statsCols as col, i}
+					<div>
+						<div
+							class="{i != 0 ? 'hidden md:grid' : ''} grid grid-cols-2 gap-2 text-center font-bold"
+						>
+							<div class="overflow-hidden text-center">里程</div>
+							<div class="overflow-hidden text-center">完成度</div>
+						</div>
+						{#each col as stat}
+							<div class="mt-1 rounded-lg bg-slate-600 px-1 py-0 md:mt-2 md:px-2 md:py-1">
+								<div class="grid grid-cols-2 gap-2 px-2 text-sm md:text-base">
+									<div class="overflow-hidden text-left">
+										{stat.type == 'points' ? '总计' : mapType(stat.type)}
+									</div>
+									<div class="overflow-hidden text-right">
+										{#if stat.rank}<span class="text-xs">NO.</span>{stat.rank}{/if}
+									</div>
+								</div>
+
+								<div class="grid grid-cols-2 pb-1">
+									<div
+										class="h-full overflow-hidden rounded-l border-r-2 border-emerald-800 bg-emerald-900"
+									>
+										{#if stat.total_points}
+											<p class="z-10 float-right mr-2 text-xs text-emerald-200 md:text-base">
+												{Math.floor((stat.points / stat.total_points) * 100)}%
+											</p>
+											<p
+												class="z-10 float-left mt-0 ml-2 text-right text-xs text-emerald-200 md:mt-1"
+											>
+												{#if stat.total_points}{stat.points}/{stat.total_points}{/if}
+											</p>
+											<div
+												class="h-full {stat.points == stat.total_points
+													? 'rounded-l'
+													: 'rounded'} bg-emerald-600"
+												style="width: {(stat.points / stat.total_points) * 100}%;"
+											></div>
+										{:else}
+											<p class="z-10 float-right mr-2 text-xs text-emerald-200 md:text-base"></p>
+											<p
+												class="z-10 float-left mt-0 ml-2 text-right text-xs text-emerald-200 md:mt-1"
+											></p>
+											<div
+												class="h-full {stat.finishes == stat.total_map
+													? 'rounded-l'
+													: 'rounded'} bg-emerald-600"
+												style="width: {(stat.finishes / stat.total_map) * 100}%;"
+											></div>
+										{/if}
+									</div>
+									<div
+										class="h-full border-collapse rounded-r border-l-2 border-teal-800 bg-teal-900"
+									>
+										<p class="z-10 float-left ml-2 text-right text-xs text-teal-200 md:text-base">
+											{Math.floor((stat.finishes / stat.total_map) * 100)}%
+										</p>
+										<p class="z-10 float-right mt-0 mr-2 text-left text-xs text-teal-200 md:mt-1">
+											{stat.finishes}/{stat.total_map}
+										</p>
 										<div
-											use:tippy={{ content: `${col.date} - ${col.hours} 小时` }}
-											class="h-[calc((100svw-5rem)/54)] w-[calc((100svw-5rem)/54)] border-r border-b border-slate-800 first:border-l sm:h-[0.6rem] sm:w-[0.6rem] md:h-3 md:w-3 lg:border-t lg:border-l"
-											style="background-color: {hoursToColor(col.hours)}"
+											class="h-full {stat.finishes == stat.total_map
+												? 'rounded-r'
+												: 'rounded'} bg-teal-600"
+											style="margin-left: auto; width: {(stat.finishes / stat.total_map) * 100}%"
 										></div>
-									{:else}
-										<div
-											class="h-[calc((100svw-5rem)/54)] w-[calc((100svw-5rem)/54)] sm:h-[0.6rem] sm:w-[0.6rem] md:h-3 md:w-3"
-										></div>
-									{/if}
-								{/each}
+									</div>
+								</div>
 							</div>
 						{/each}
 					</div>
-				</div>
+				{/each}
 			</div>
 		</div>
-		<div class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
-			<h3 class="mb-1 text-base font-bold">增长趋势</h3>
-			<div class="mx-auto h-48 w-full rounded bg-slate-700 p-3">
-				<canvas id="growth-chart" class="h-full w-full"></canvas>
-			</div>
-		</div>
-	</div>
-</div>
-
-{#if toolVersion() == 2025}
-	{#await import('$lib/components/tools/DDIdle.svelte') then { default: DDIdle }}
-		<DDIdle
-			skin={data.skin.n}
-			body={data.skin.b}
-			feet={data.skin.f}
-			bind:points={toolPoints}
-			name={data.player.player}
-		></DDIdle>
-	{/await}
-{:else if toolVersion() == 2026}
-	{#await import('$lib/components/tools/DDShare.svelte') then { default: DDShare }}
-		<DDShare name={data.player.player} {toolEntry} bind:toolPoints bind:pendingToolPoints></DDShare>
-	{/await}
-{/if}
-
-<Modal bind:show={pointModal}>
-	<PointCalculation></PointCalculation>
-</Modal>
-
-<Modal bind:show={mapModal}>
-	<div class="container rounded-l-lg rounded-br-lg bg-slate-700 p-2 shadow-md md:p-4">
-		<h2 class="mb-3 text-xl font-bold">过图数据</h2>
-		<div class="rounded-lg bg-slate-600 p-2">
-			<div class="mb-4 flex-col space-y-2 md:flex md:flex-row md:space-y-0 md:space-x-2">
-				<input
-					type="text"
-					placeholder="搜索地图名"
-					class="w-full cursor-text rounded border border-slate-600 bg-slate-700 px-4 py-2 text-slate-300 md:mb-0 md:flex-1"
-					bind:value={searchMap}
-				/>
-				<select
-					class="rounded border border-slate-600 bg-slate-700 px-4 py-2 text-slate-300 disabled:opacity-50"
-					disabled={!!searchMap}
-					bind:value={sortType}
-				>
-					<option value="finish">最近完成</option>
-					<option value="rank">最高排名</option>
-					<option value="point">最高里程</option>
-					<option value="name">首字母排序</option>
-					<option value="unfinished">仅未完成</option>
-				</select>
-				<select
-					class="rounded border border-slate-600 bg-slate-700 px-4 py-2 text-slate-300 disabled:opacity-50"
-					disabled={!!searchMap}
-					bind:value={filterType}
-				>
-					<option value="all">全部</option>
-					<option value="novice">新手</option>
-					<option value="moderate">中阶</option>
-					<option value="brutal">高阶</option>
-					<option value="insane">疯狂</option>
-					<option value="ddmax">古典</option>
-					<option value="oldschool">传统</option>
-					<option value="dummy">分身</option>
-					<option value="solo">单人</option>
-					<option value="race">竞速</option>
-					<option value="fun">娱乐</option>
-				</select>
-			</div>
-			<div
-				class="scrollbar-subtle h-[calc(100svh-15rem)] overflow-hidden md:h-[calc(100svh-13rem)]"
-			>
-				<div class="hidden cursor-default rounded-t bg-slate-700 text-center text-nowrap sm:block">
-					<span class="inline-block w-32 overflow-hidden pl-2 text-left lg:w-48">地图</span>
-					<span class="hidden w-8 overflow-hidden text-left md:inline-block lg:w-16">类型</span>
-					<span class="inline-block w-8 overflow-hidden sm:w-16">里程</span>
-					<span class="hidden w-16 overflow-hidden text-right md:inline-block">团队排名</span>
-					<span class="hidden w-16 overflow-hidden text-right md:inline-block">个人排名</span>
-					<span class="inline-block w-16 overflow-hidden text-right sm:w-24">最短记录</span>
-					<span class="hidden w-16 overflow-hidden md:inline-block">次数</span>
-					<span class="inline-block w-32 overflow-hidden lg:w-40">首次完成</span>
+		<div class="rounded-lg bg-slate-700 p-2 shadow-md md:p-4">
+			<h2 class="mb-3 text-xl font-bold">玩家活跃</h2>
+			<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				<div class="rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
+					<h3 class="mb-1 text-base font-bold">首次记录</h3>
+					<p>
+						<MapLink map={data.player.first_finish.map} className="font-semibold"
+							>{data.player.first_finish.map}</MapLink
+						> ({secondsToTime(data.player.first_finish.time)})
+					</p>
+					<p>于 {secondsToDate(data.player.first_finish.timestamp)} 完成</p>
 				</div>
-				<div class="block cursor-default rounded-t bg-slate-700 text-center text-nowrap sm:hidden">
-					<span class="inline-block">地图</span>
-					<span class="inline-block">里程</span>
-					<span class="inline-block">记录</span>
-					<span class="inline-block">完成</span>
+				<div
+					class="rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3"
+					class:opacity-50={!data.player.hours_played_past_365_days}
+				>
+					<h3 class="mb-1 text-base font-bold">活跃时间</h3>
+					{#if data.player.hours_played_past_365_days}
+						<p>
+							<span class="font-semibold">365天内游玩：</span>{data.player
+								.hours_played_past_365_days}
+							小时
+						</p>
+					{:else}
+						<p>过去 365 天未游玩</p>
+					{/if}
 				</div>
-				<div class="h-[calc(100%-1rem)]">
-					<VirtualScroll
-						keeps={75}
-						data={filteredMaps()}
-						key="name"
-						estimateSize={30}
-						let:data
-						let:index
-					>
-						<div slot="footer" class="rounded-lg bg-slate-800 text-center">到底了</div>
-						{@const isTeamTop10 = data.map.team_rank && data.map.team_rank <= 10}
-						{@const isRankTop10 = data.map.rank && data.map.rank <= 10}
-						<div
-							class="min-w-fit cursor-default flex-col text-center text-nowrap"
-							class:bg-slate-700={index % 2 == 1}
-							class:bg-slate-600={index % 2 == 0}
-						>
-							<span class="inline-block w-32 overflow-hidden pl-2 text-left lg:w-48"
-								><MapLink className="font-semibold" map={data.name}>{data.name}</MapLink></span
-							>
-							<span class="hidden w-8 overflow-hidden text-left md:inline-block lg:w-20"
-								>{mapType(data.type)}</span
-							>
-							<span class="inline-block w-8 overflow-hidden sm:w-16">{data.map.points}</span>
-							{#if data.map.pending}
-								<span
-									class="hidden w-16 overflow-hidden text-right md:inline-block"
-									class:text-blue-300={data.map.pending}>......</span
-								>
-								<span
-									class="hidden w-16 overflow-hidden text-right md:inline-block"
-									class:text-blue-300={data.map.pending}>......</span
-								>
-							{:else}
-								<span
-									class="hidden w-16 overflow-hidden text-right md:inline-block"
-									class:text-orange-500={isTeamTop10}
-									>{data.map.team_rank ? data.map.team_rank + '.' : ''}</span
-								>
-								<span
-									class="hidden w-16 overflow-hidden text-right md:inline-block"
-									class:text-orange-500={isRankTop10}
-									>{data.map.rank ? data.map.rank + '.' : ''}</span
-								>
-							{/if}
-							<span class="inline-block w-16 overflow-hidden text-right sm:w-24"
-								>{data.map.time ? secondsToTime(data.map.time) : ''}</span
-							>
-							<span class="hidden w-16 overflow-hidden md:inline-block">{data.map.finishes}</span>
-							<span
-								class="inline-block w-32 overflow-hidden lg:w-40"
-								class:text-blue-300={data.map.pending}
-								>{data.map.first_finish
-									? new Date(data.map.first_finish * 1000).toLocaleString('zh-CN', {
-											dateStyle: 'short',
-											timeStyle: 'short'
-										})
-									: ''}</span
-							>
+			</div>
+			<div class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
+				<h3 class="mb-1 text-base font-bold">活跃记录</h3>
+				<div class="mx-auto max-w-fit rounded bg-slate-700 p-1 sm:p-2 md:p-3">
+					<div class="flex flex-row flex-nowrap gap-2">
+						<div class="hidden flex-col text-xs sm:flex">
+							<p class="-mt-1 grow text-nowrap">周一</p>
+							<p class="text-nowrap">周日</p>
 						</div>
-					</VirtualScroll>
+						<div class="flex flex-col flex-nowrap lg:gap-0.5">
+							{#each data.activity as row}
+								<div
+									class="flex flex-row flex-nowrap border-slate-800 first:border-t lg:gap-0.5 lg:border-none"
+								>
+									{#each row as col}
+										{#if col.date}
+											<div
+												use:tippy={{ content: `${col.date} - ${col.hours} 小时` }}
+												class="h-[calc((100svw-5rem)/54)] w-[calc((100svw-5rem)/54)] border-r border-b border-slate-800 first:border-l sm:h-[0.6rem] sm:w-[0.6rem] md:h-3 md:w-3 lg:border-t lg:border-l"
+												style="background-color: {hoursToColor(col.hours)}"
+											></div>
+										{:else}
+											<div
+												class="h-[calc((100svw-5rem)/54)] w-[calc((100svw-5rem)/54)] sm:h-[0.6rem] sm:w-[0.6rem] md:h-3 md:w-3"
+											></div>
+										{/if}
+									{/each}
+								</div>
+							{/each}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="mt-2 rounded-lg bg-slate-600 px-3 py-1 shadow-md sm:py-3">
+				<h3 class="mb-1 text-base font-bold">增长趋势</h3>
+				<div class="mx-auto h-48 w-full rounded bg-slate-700 p-3">
+					<canvas id="growth-chart" class="h-full w-full"></canvas>
 				</div>
 			</div>
 		</div>
 	</div>
-</Modal>
 
+	{#if toolVersion() == 2025}
+		{#await import('$lib/components/tools/DDIdle.svelte') then { default: DDIdle }}
+			<DDIdle
+				skin={data.skin.n}
+				body={data.skin.b}
+				feet={data.skin.f}
+				bind:points={toolPoints}
+				name={data.player.player}
+			></DDIdle>
+		{/await}
+	{:else if toolVersion() == 2026}
+		{#await import('$lib/components/tools/DDShare.svelte') then { default: DDShare }}
+			<DDShare name={data.player.player} {toolEntry} bind:toolPoints bind:pendingToolPoints
+			></DDShare>
+		{/await}
+	{/if}
+
+	<Modal bind:show={pointModal}>
+		<PointCalculation></PointCalculation>
+	</Modal>
+
+	<Modal bind:show={mapModal}>
+		<div class="container rounded-l-lg rounded-br-lg bg-slate-700 p-2 shadow-md md:p-4">
+			<h2 class="mb-3 text-xl font-bold">过图数据</h2>
+			<div class="rounded-lg bg-slate-600 p-2">
+				<div class="mb-4 flex-col space-y-2 md:flex md:flex-row md:space-y-0 md:space-x-2">
+					<input
+						type="text"
+						placeholder="搜索地图名"
+						class="w-full cursor-text rounded border border-slate-600 bg-slate-700 px-4 py-2 text-slate-300 md:mb-0 md:flex-1"
+						bind:value={searchMap}
+					/>
+					<select
+						class="rounded border border-slate-600 bg-slate-700 px-4 py-2 text-slate-300 disabled:opacity-50"
+						disabled={!!searchMap}
+						bind:value={sortType}
+					>
+						<option value="finish">最近完成</option>
+						<option value="rank">最高排名</option>
+						<option value="point">最高里程</option>
+						<option value="name">首字母排序</option>
+						<option value="unfinished">仅未完成</option>
+					</select>
+					<select
+						class="rounded border border-slate-600 bg-slate-700 px-4 py-2 text-slate-300 disabled:opacity-50"
+						disabled={!!searchMap}
+						bind:value={filterType}
+					>
+						<option value="all">全部</option>
+						<option value="novice">新手</option>
+						<option value="moderate">中阶</option>
+						<option value="brutal">高阶</option>
+						<option value="insane">疯狂</option>
+						<option value="ddmax">古典</option>
+						<option value="oldschool">传统</option>
+						<option value="dummy">分身</option>
+						<option value="solo">单人</option>
+						<option value="race">竞速</option>
+						<option value="fun">娱乐</option>
+					</select>
+				</div>
+				<div
+					class="scrollbar-subtle h-[calc(100svh-15rem)] overflow-hidden md:h-[calc(100svh-13rem)]"
+				>
+					<div
+						class="hidden cursor-default rounded-t bg-slate-700 text-center text-nowrap sm:block"
+					>
+						<span class="inline-block w-32 overflow-hidden pl-2 text-left lg:w-48">地图</span>
+						<span class="hidden w-8 overflow-hidden text-left md:inline-block lg:w-16">类型</span>
+						<span class="inline-block w-8 overflow-hidden sm:w-16">里程</span>
+						<span class="hidden w-16 overflow-hidden text-right md:inline-block">团队排名</span>
+						<span class="hidden w-16 overflow-hidden text-right md:inline-block">个人排名</span>
+						<span class="inline-block w-16 overflow-hidden text-right sm:w-24">最短记录</span>
+						<span class="hidden w-16 overflow-hidden md:inline-block">次数</span>
+						<span class="inline-block w-32 overflow-hidden lg:w-40">首次完成</span>
+					</div>
+					<div
+						class="block cursor-default rounded-t bg-slate-700 text-center text-nowrap sm:hidden"
+					>
+						<span class="inline-block">地图</span>
+						<span class="inline-block">里程</span>
+						<span class="inline-block">记录</span>
+						<span class="inline-block">完成</span>
+					</div>
+					<div class="h-[calc(100%-1rem)]">
+						<VirtualScroll
+							keeps={75}
+							data={filteredMaps()}
+							key="name"
+							estimateSize={30}
+							let:data
+							let:index
+						>
+							<div slot="footer" class="rounded-lg bg-slate-800 text-center">到底了</div>
+							{@const isTeamTop10 = data.map.team_rank && data.map.team_rank <= 10}
+							{@const isRankTop10 = data.map.rank && data.map.rank <= 10}
+							<div
+								class="min-w-fit cursor-default flex-col text-center text-nowrap"
+								class:bg-slate-700={index % 2 == 1}
+								class:bg-slate-600={index % 2 == 0}
+							>
+								<span class="inline-block w-32 overflow-hidden pl-2 text-left lg:w-48"
+									><MapLink className="font-semibold" map={data.name}>{data.name}</MapLink></span
+								>
+								<span class="hidden w-8 overflow-hidden text-left md:inline-block lg:w-20"
+									>{mapType(data.type)}</span
+								>
+								<span class="inline-block w-8 overflow-hidden sm:w-16">{data.map.points}</span>
+								{#if data.map.pending}
+									<span
+										class="hidden w-16 overflow-hidden text-right md:inline-block"
+										class:text-blue-300={data.map.pending}>......</span
+									>
+									<span
+										class="hidden w-16 overflow-hidden text-right md:inline-block"
+										class:text-blue-300={data.map.pending}>......</span
+									>
+								{:else}
+									<span
+										class="hidden w-16 overflow-hidden text-right md:inline-block"
+										class:text-orange-500={isTeamTop10}
+										>{data.map.team_rank ? data.map.team_rank + '.' : ''}</span
+									>
+									<span
+										class="hidden w-16 overflow-hidden text-right md:inline-block"
+										class:text-orange-500={isRankTop10}
+										>{data.map.rank ? data.map.rank + '.' : ''}</span
+									>
+								{/if}
+								<span class="inline-block w-16 overflow-hidden text-right sm:w-24"
+									>{data.map.time ? secondsToTime(data.map.time) : ''}</span
+								>
+								<span class="hidden w-16 overflow-hidden md:inline-block">{data.map.finishes}</span>
+								<span
+									class="inline-block w-32 overflow-hidden lg:w-40"
+									class:text-blue-300={data.map.pending}
+									>{data.map.first_finish
+										? new Date(data.map.first_finish * 1000).toLocaleString('zh-CN', {
+												dateStyle: 'short',
+												timeStyle: 'short'
+											})
+										: ''}</span
+								>
+							</div>
+						</VirtualScroll>
+					</div>
+				</div>
+			</div>
+		</div>
+	</Modal>
 {/if}
 
 <style>

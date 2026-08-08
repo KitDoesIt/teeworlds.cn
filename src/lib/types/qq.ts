@@ -17,10 +17,7 @@ export enum QQRichTextType {
 }
 
 export type QQRichTextElem =
-	| QQRichTextElemText
-	| QQRichTextElemImage
-	| QQRichTextElemVideo
-	| QQRichTextElemUrl;
+	QQRichTextElemText | QQRichTextElemImage | QQRichTextElemVideo | QQRichTextElemUrl;
 
 export type QQRichTextElemText = {
 	text: {

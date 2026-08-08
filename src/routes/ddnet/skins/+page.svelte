@@ -55,7 +55,7 @@
 			const tokens = tokenize(query);
 			if (tokens.length === 0) return () => true;
 
-			return (skin: typeof data.skins[number]) => {
+			return (skin: (typeof data.skins)[number]) => {
 				return tokens.every((tok) => {
 					const lower = tok.toLowerCase();
 					if (lower.startsWith('author:')) {
@@ -64,11 +64,7 @@
 					}
 					if (lower.startsWith('pack:')) {
 						const needle = lower.slice('pack:'.length);
-						return (
-							needle !== '' &&
-							!!skin.skinpack &&
-							skin.skinpack.toLowerCase().includes(needle)
-						);
+						return needle !== '' && !!skin.skinpack && skin.skinpack.toLowerCase().includes(needle);
 					}
 					return skin.name.toLowerCase().includes(lower);
 				});
@@ -178,7 +174,8 @@
 >
 	<Fa icon={faCircleInfo} class="mt-0.5 shrink-0 text-blue-300" />
 	<p>
-		通常情况下，<strong class="font-semibold">复制皮肤名</strong>粘贴到 DDNet 客户端即可自动下载，无需手动下载源文件。
+		通常情况下，<strong class="font-semibold">复制皮肤名</strong>粘贴到 DDNet
+		客户端即可自动下载，无需手动下载源文件。
 	</p>
 </div>
 

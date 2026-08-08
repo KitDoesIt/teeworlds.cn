@@ -73,7 +73,7 @@
 				emote={copiedSkin === skin.name ? EMOTE.hurt : EMOTE.normal}
 			/>
 		</a>
-		</div>
+	</div>
 
 	<!--
 		右上角系列角标：仅当 skinpack 存在时显示。放在卡片右上角（预览图外），
@@ -83,15 +83,15 @@
 		{#if searchByPack}
 			<button
 				type="button"
-				class="absolute top-0.5 right-1 truncate px-1 text-[10px] leading-tight italic text-slate-500 transition-colors hover:text-slate-300"
+				class="absolute top-0.5 right-1 truncate px-1 text-[10px] leading-tight text-slate-500 italic transition-colors hover:text-slate-300"
 				title={`筛选系列: ${skin.skinpack}`}
-				onclick={() => searchByPack(skin.skinpack)}
-			>{skin.skinpack}</button>
+				onclick={() => searchByPack(skin.skinpack)}>{skin.skinpack}</button
+			>
 		{:else}
 			<span
-				class="absolute top-0.5 right-1 truncate px-1 text-[10px] leading-tight italic text-slate-500"
-				title={skin.skinpack}
-			>{skin.skinpack}</span>
+				class="absolute top-0.5 right-1 truncate px-1 text-[10px] leading-tight text-slate-500 italic"
+				title={skin.skinpack}>{skin.skinpack}</span
+			>
 		{/if}
 	{/if}
 
@@ -121,8 +121,8 @@
 						type="button"
 						class="truncate text-left hover:text-slate-200 hover:underline"
 						title={`筛选作者: ${skin.creator}`}
-						onclick={() => searchByAuthor(skin.creator)}
-					>{skin.creator}</button>
+						onclick={() => searchByAuthor(skin.creator)}>{skin.creator}</button
+					>
 				{:else}
 					<span class="truncate">{skin.creator}</span>
 				{/if}
@@ -135,13 +135,8 @@
 		绝对定位在卡片右下角，不挤压主内容。
 		用 flex-col 让两个角标垂直堆叠，gap-0.5 让它们之间有一点间距。
 	-->
-	<div
-		class="pointer-events-none absolute right-1 bottom-1 flex flex-col items-end gap-0.5"
-	>
-		<span
-			class="rounded px-1 text-[10px] leading-tight {typeBadge.cls}"
-			title={typeBadge.title}
-		>
+	<div class="pointer-events-none absolute right-1 bottom-1 flex flex-col items-end gap-0.5">
+		<span class="rounded px-1 text-[10px] leading-tight {typeBadge.cls}" title={typeBadge.title}>
 			{typeBadge.label}
 		</span>
 		<span

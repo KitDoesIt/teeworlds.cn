@@ -1,3 +1,5 @@
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 import EventEmitter from 'events';
 import Keyv, { type KeyvStoreAdapter, type StoredData } from 'keyv';
 import { Database } from 'bun:sqlite';
@@ -62,6 +64,9 @@ export class KeyvSqlite extends EventEmitter implements KeyvStoreAdapter {
 
 		// Initialize Bun SQLite database
 		const dbPath = options.uri!.replace(/^sqlite:\/\//, '');
+		if (dbPath !== ':memory:') {
+			mkdirSync(dirname(dbPath), { recursive: true });
+		}
 		this.database = new Database(dbPath === ':memory:' ? ':memory:' : dbPath);
 
 		// Enable WAL mode and optimizations for better performance
