@@ -129,10 +129,7 @@
 	});
 </script>
 
-<section
-	class="rounded-lg bg-slate-700 p-4 shadow-lg sm:p-6"
-	aria-labelledby="skin-preview-title"
->
+<section class="rounded-lg bg-slate-700 p-4 shadow-lg sm:p-6" aria-labelledby="skin-preview-title">
 	<div class="mb-4 flex flex-wrap items-start justify-between gap-3">
 		<div>
 			<h2 id="skin-preview-title" class="text-xl font-bold text-slate-100">自定义皮肤预览</h2>
@@ -254,8 +251,7 @@
 					{#each emotes as emote}
 						<button
 							type="button"
-							class="rounded-md px-3 py-1.5 text-sm transition-colors {selectedEmote ===
-							emote.value
+							class="rounded-md px-3 py-1.5 text-sm transition-colors {selectedEmote === emote.value
 								? 'bg-blue-600 text-white'
 								: 'bg-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white'}"
 							onclick={() => (selectedEmote = emote.value)}

@@ -373,10 +373,7 @@ export type WeChatEncryptedMessage = {
 
 type MaybeCData<T, K extends string = string> = T extends CData ? CData<K> : K;
 type WeChatMessage<T extends CData | string> =
-	| WeChatTextMessage<T>
-	| WeChatImageMessage<T>
-	| WeChatArticleMessage<T>
-	| WeChatEventMessage<T>;
+	WeChatTextMessage<T> | WeChatImageMessage<T> | WeChatArticleMessage<T> | WeChatEventMessage<T>;
 
 export type WeChatIncomingMessage = WeChatReceived<WeChatMessage<string>>;
 export type WeChatOutgoingMessage = WeChatMessage<CData>;

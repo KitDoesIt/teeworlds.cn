@@ -38,7 +38,9 @@ export function transformPlayerData(data: { player: any; skin: any }) {
 				rank: data.points.rank,
 				points: data.points.points || 0,
 				total_points: data.points.total,
-				finishes: Object.entries(data.maps as Record<string, any>).filter(([_, map]) => map.finishes).length,
+				finishes: Object.entries(data.maps as Record<string, any>).filter(
+					([_, map]) => map.finishes
+				).length,
 				total_map: Object.keys(data.maps).length
 			};
 

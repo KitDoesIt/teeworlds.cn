@@ -210,7 +210,7 @@
 				<div class="space-y-2">
 					{#each Object.entries(upgrades) as [key, upgrade]}
 						<button
-							class="cursor-pointer disabled:cursor-auto w-full rounded bg-slate-700 p-2 hover:bg-slate-600 disabled:opacity-50 disabled:hover:bg-slate-700"
+							class="w-full cursor-pointer rounded bg-slate-700 p-2 hover:bg-slate-600 disabled:cursor-auto disabled:opacity-50 disabled:hover:bg-slate-700"
 							disabled={points < upgrade.cost}
 							onclick={() => buyUpgrade(key as keyof typeof upgrades)}
 						>

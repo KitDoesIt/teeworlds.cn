@@ -31,7 +31,9 @@ function loadBlocklist() {
 			.filter((line) => line.length > 0 && !line.startsWith('#'));
 
 		BLOCKED_SKINS = skins;
-		console.log(`[blocklist] Loaded ${BLOCKED_SKINS.length} blocked skins: ${BLOCKED_SKINS.join(', ')}`);
+		console.log(
+			`[blocklist] Loaded ${BLOCKED_SKINS.length} blocked skins: ${BLOCKED_SKINS.join(', ')}`
+		);
 	} catch (e) {
 		console.error('[blocklist] Failed to load blocklist:', e);
 		BLOCKED_SKINS = [];
